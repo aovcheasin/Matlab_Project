@@ -1,14 +1,46 @@
 % Main script for MATLAB Next Word Prediction Project
-% Part 1: Data Preparation
+% Loads models and shows interactive demo
 
 clear; clc; close all;
 
-% Add path to include part1 folder
+% Add paths to all parts
 addpath('part1');
+addpath('part2');
+addpath('part3');
+addpath('part4');
+addpath('part5');
 
-fprintf('MATLAB Next Word Prediction Project\n');
-fprintf('=====================================\n\n');
+fprintf('===============================================\n');
+fprintf('   MATLAB Next Word Prediction Project\n');
+fprintf('===============================================\n\n');
 
-% Run Part 1
-corpusPath = 'corpus.txt';
-analyze_and_visualize(corpusPath);
+% Load and process corpus
+fprintf('Loading corpus...\n');
+[tokens, ~, ~] = text_processing('corpus.txt');
+fprintf('Loaded %d tokens\n', length(tokens));
+
+% Train models
+fprintf('Training models (this may take a minute)...\n');
+bigramModel = train_bigram_model(tokens);
+embeddings = co_occurrence_word_embeddings(tokens, 2);
+fprintf('Models ready! Vocabulary size: %d words\n', length(bigramModel.vocab));
+
+% Save models for UI demo
+save('models.mat', 'bigramModel', 'embeddings');
+
+% Demo predictions
+fprintf('\n=== Sample Predictions ===\n');
+sampleWords = {'she', 'he', 'the', 'was', 'is', 'big'};
+for i = 1:length(sampleWords)
+    word = sampleWords{i};
+    bigramPreds = prediction_words_bigram(word, bigramModel, 3);
+    vecPreds = predict_vector_similar(word, embeddings, 3);
+    fprintf('  "%s" -> Bigram: [%s]  |  Vector: [%s]\n', ...
+        word, strjoin(bigramPreds, ', '), strjoin(vecPreds, ', '));
+end
+
+fprintf('\n=== How to use ===\n');
+fprintf('1. Run ui_demo() for interactive GUI\n');
+fprintf('2. Or use programmatically:\n');
+fprintf('   prediction_words_bigram("word", bigramModel, k)\n');
+fprintf('   predict_vector_similar("word", embeddings, k)\n');
