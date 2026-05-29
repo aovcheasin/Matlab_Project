@@ -39,8 +39,5 @@ for i = 1:length(sampleWords)
         word, strjoin(bigramPreds, ', '), strjoin(vecPreds, ', '));
 end
 
-fprintf('\n=== How to use ===\n');
-fprintf('1. Run ui_demo() for interactive GUI\n');
-fprintf('2. Or use programmatically:\n');
-fprintf('   prediction_words_bigram("word", bigramModel, k)\n');
-fprintf('   predict_vector_similar("word", embeddings, k)\n');
+fprintf('\n=== Launching UI Demo ===\n');
+ui_demo();
