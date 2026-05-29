@@ -22,11 +22,23 @@ end
 
 bigramAcc = evaluate_accuracy(predictions, targets);
 
-% Evaluate vector model
+% Evaluate vector model using forward probabilities
 predictions = cell(length(testSet) - 1, 1);
 for i = 2:length(testSet)
     history = testSet{i-1};
-    preds = predict_vector_similar(history, embeddings, 10);
+    if isKey(embeddings.vocabLookup, history)
+        idx = embeddings.vocabLookup(history);
+        probs = full(embeddings.forwardProbs(idx, :));
+        probs(idx) = 0;
+        if any(probs > 0)
+            [~, sortedIdx] = sort(probs, 'descend');
+            preds = embeddings.vocab(sortedIdx(1:min(10, end)));
+        else
+            preds = {};
+        end
+    else
+        preds = {};
+    end
     predictions{i-1} = preds;
 end
 

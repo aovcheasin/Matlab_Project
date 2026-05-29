@@ -9,10 +9,15 @@ if nargin < 3
     k = 5;
 end
 
-vocabLookup = containers.Map(embeddings.vocab, 1:length(embeddings.vocab));
+if isfield(embeddings, 'vocabLookup')
+    vocabLookup = embeddings.vocabLookup;
+else
+    vocabLookup = containers.Map(embeddings.vocab, 1:length(embeddings.vocab));
+end
 
 % Get context vector
 if ischar(contextWord) || isstring(contextWord)
+    contextWord = char(contextWord);
     if ~isKey(vocabLookup, contextWord)
         nextWords = {};
         return;
@@ -26,6 +31,15 @@ end
 contextVec = embeddings.matrix(idx, :)';
 normContext = norm(contextVec);
 if normContext == 0
+    if isfield(embeddings, 'forwardProbs')
+        probs = full(embeddings.forwardProbs(idx, :));
+        probs(idx) = 0;
+        if any(probs > 0)
+            [~, sortedIdx] = sort(probs, 'descend');
+            nextWords = embeddings.vocab(sortedIdx(1:min(k, end)));
+            return;
+        end
+    end
     nextWords = embeddings.vocab(1:min(k, end));
     return;
 end
@@ -42,5 +56,9 @@ end
 % Get top k similar words (excluding the context word itself)
 [~, sortedIdx] = sort(similarities, 'descend');
 sortedIdx = sortedIdx(sortedIdx ~= idx);  % Remove context word
+if isempty(sortedIdx)
+    nextWords = {};
+    return;
+end
 nextWords = embeddings.vocab(sortedIdx(1:min(k, end)));
 end

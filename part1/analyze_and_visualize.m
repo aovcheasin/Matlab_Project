@@ -3,7 +3,8 @@ function analyze_and_visualize(corpusPath)
 %   Analyzes text corpus and generates statistics
 %
 %   Input:
-%       corpusPath - path to text corpus file
+%       corpusPath - path to text corpus file (default: 'corpus.txt')
+if nargin < 1, corpusPath = 'corpus.txt'; end
 
     % Preprocess text
     [tokens, vocabulary, wordFreq] = text_processing(corpusPath);

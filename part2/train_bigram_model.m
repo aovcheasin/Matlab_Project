@@ -31,8 +31,8 @@ for w1 = 1:vocabSize
     end
 end
 
-% Calculate unigram probabilities for backoff
-unigramCounts = accumarray(tokenIdx, 1);
-bigramModel.unigramProbs = unigramCounts / sum(unigramCounts);
+    % Calculate unigram probabilities for backoff
+    unigramCounts = accumarray(tokenIdx, 1, [vocabSize, 1]);
+    bigramModel.unigramProbs = unigramCounts / sum(unigramCounts);
 bigramModel.vocabSize = vocabSize;
 end
