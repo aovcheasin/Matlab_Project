@@ -1,5 +1,5 @@
 function ui_demo()
-%UI_DEMO Interactive next-word prediction demo — Lightweight & Clean
+%UI_DEMO Interactive next-word prediction demo — Modern Light Theme
 
     % Load models
     if exist('models.mat', 'file')
@@ -17,177 +17,166 @@ function ui_demo()
     vocabLookup = bigramModel.vocabLookup;
     nVocab      = numel(vocab);
 
-    % ── Colour Palette (light & airy) ──
-    BG    = [0.97 0.97 0.98];
-    PANEL = [1 1 1];
-    ACC   = [0.20 0.55 0.85];
-    ACC_H = [0.15 0.45 0.70];
-    GRN   = [0.22 0.65 0.35];
-    PUR   = [0.55 0.35 0.80];
-    RED   = [0.85 0.25 0.25];
-    TXT   = [0.20 0.20 0.25];
-    MUTED = [0.55 0.55 0.60];
-    BORDER= [0.85 0.85 0.88];
-    YLW   = [1.00 0.82 0.20];
-    BAR_BG= [0.93 0.94 0.96];
+    % ══════════════════════════════════════
+    %  MODERN LIGHT COLOUR PALETTE
+    % ══════════════════════════════════════
+    BG        = [0.965 0.97 0.975];
+    CARD      = [1 1 1];
+    ACCENT    = [0.13 0.55 0.90];
+    GREEN     = [0.18 0.72 0.42];
+    PURPLE    = [0.52 0.36 0.82];
+    ORANGE    = [0.90 0.52 0.12];
+    RED       = [0.92 0.30 0.30];
+    TEAL      = [0.15 0.65 0.60];
+    TXT       = [0.15 0.16 0.20];
+    SUBTXT    = [0.45 0.47 0.52];
+    BORDER    = [0.88 0.89 0.91];
 
-    % ════════════════════════════════════════
+    % ══════════════════════════════════════
     %  MAIN FIGURE
-    % ════════════════════════════════════════
+    % ══════════════════════════════════════
+    figW = 860;  figH = 650;
     fig = uifigure( ...
         'Name',    'Next Word Prediction', ...
-        'Position', [100 80 820 600], ...
+        'Position', [100 60 figW figH], ...
         'Color',   BG, ...
         'WindowStyle', 'normal');
     fig.CloseRequestFcn = @(~,~)cleanup();
 
     % ──── HEADER ────
     pnlHeader = uipanel(fig, ...
-        'Position', [0 560 820 40], ...
-        'BackgroundColor', ACC, ...
+        'Position', [0 figH-52 figW 52], ...
+        'BackgroundColor', CARD, ...
         'BorderType', 'none');
     uilabel(pnlHeader, ...
-        'Position', [0 8 820 24], ...
-        'Text', 'NEXT WORD PREDICTION', ...
-        'FontSize', 16, 'FontWeight', 'bold', ...
-        'FontColor', [1 1 1], ...
-        'HorizontalAlignment', 'center');
+        'Position', [20 10 figW-40 32], ...
+        'Text', '  Next Word Prediction', ...
+        'FontSize', 18, 'FontWeight', 'bold', ...
+        'FontColor', TXT, ...
+        'VerticalAlignment', 'center');
+    % Blue accent line under header
+    uipanel(fig, ...
+        'Position', [0 figH-55 figW 3], ...
+        'BackgroundColor', ACCENT, ...
+        'BorderType', 'none');
 
     % ──── STATUS BAR ────
     pnlStatus = uipanel(fig, ...
-        'Position', [0 0 820 22], ...
-        'BackgroundColor', [0.92 0.92 0.94], ...
-        'BorderType', 'line', 'HighlightColor', BORDER);
+        'Position', [0 0 figW 28], ...
+        'BackgroundColor', CARD, ...
+        'BorderType', 'none');
     lblStatus = uilabel(pnlStatus, ...
-        'Position', [10 1 800 20], ...
-        'Text', sprintf(' Ready  ·  Vocabulary: %d words', nVocab), ...
-        'FontSize', 9, 'FontColor', MUTED);
+        'Position', [16 4 figW-32 20], ...
+        'Text', sprintf('  Vocabulary: %d words  |  Ready', nVocab), ...
+        'FontSize', 10, 'FontColor', SUBTXT);
 
-    % ════════════════════════════════════════
-    %  INPUT ROW
-    % ════════════════════════════════════════
+    % ══════════════════════════════════════
+    %  INPUT CARD
+    % ══════════════════════════════════════
+    inY = figH - 128;  inH = 62;
     pnlInput = uipanel(fig, ...
-        'Position', [10 505 800 50], ...
-        'BackgroundColor', PANEL, ...
+        'Position', [16 inY figW-32 inH], ...
+        'BackgroundColor', CARD, ...
         'BorderType', 'line', 'HighlightColor', BORDER);
 
     uilabel(pnlInput, ...
-        'Position', [8 12 50 22], 'Text', 'Word:', ...
-        'FontColor', TXT, 'FontWeight', 'bold', 'FontSize', 11);
+        'Position', [16 18 60 24], ...
+        'Text', 'Input', ...
+        'FontSize', 11, 'FontWeight', 'bold', ...
+        'FontColor', SUBTXT);
 
     editWord = uieditfield(pnlInput, 'text', ...
-        'Position', [58 10 180 26], ...
-        'FontSize', 12, 'FontName', 'Consolas', ...
-        'Placeholder', 'type a word ...');
+        'Position', [78 14 180 30], ...
+        'FontSize', 13, 'FontName', 'Consolas', ...
+        'Placeholder', 'type a word...');
 
     btnPredict = uibutton(pnlInput, 'push', ...
-        'Position', [248 10 100 26], ...
+        'Position', [274 14 90 30], ...
         'Text', 'Predict', 'FontSize', 11, 'FontWeight', 'bold', ...
-        'BackgroundColor', ACC, 'FontColor', [1 1 1]);
+        'BackgroundColor', ACCENT, 'FontColor', [1 1 1]);
     btnPredict.ButtonPushedFcn = @(~,~)onPredict();
 
     btnLetter = uibutton(pnlInput, 'push', ...
-        'Position', [358 10 110 26], ...
-        'Text', 'Letter Match', 'FontSize', 11, ...
-        'BackgroundColor', PUR, 'FontColor', [1 1 1]);
+        'Position', [374 14 100 30], ...
+        'Text', 'Letter', 'FontSize', 11, 'FontWeight', 'bold', ...
+        'BackgroundColor', PURPLE, 'FontColor', [1 1 1]);
     btnLetter.ButtonPushedFcn = @(~,~)onLetterMatch();
 
     btnClear = uibutton(pnlInput, 'push', ...
-        'Position', [478 10 90 26], ...
-        'Text', 'Clear', 'FontSize', 11, ...
+        'Position', [484 14 80 30], ...
+        'Text', 'Clear', 'FontSize', 11, 'FontWeight', 'bold', ...
         'BackgroundColor', RED, 'FontColor', [1 1 1]);
     btnClear.ButtonPushedFcn = @(~,~)onClear();
 
     btnChart = uibutton(pnlInput, 'push', ...
-        'Position', [578 10 100 26], ...
-        'Text', 'Chart', 'FontSize', 11, ...
-        'BackgroundColor', [0.30 0.65 0.55], 'FontColor', [1 1 1]);
+        'Position', [574 14 80 30], ...
+        'Text', 'Chart', 'FontSize', 11, 'FontWeight', 'bold', ...
+        'BackgroundColor', TEAL, 'FontColor', [1 1 1]);
     btnChart.ButtonPushedFcn = @(~,~)onChart();
 
-    % ════════════════════════════════════════
-    %  LEFT COLUMN  —  Results
-    % ════════════════════════════════════════
-    LEFT_X = 10;
-    COL_W  = 395;
+    % ══════════════════════════════════════
+    %  RESULT CARDS
+    % ══════════════════════════════════════
+    cardW = figW - 32;
+    cardH = 155;
+    gap   = 12;
 
-    % ── Bigram results ──
+    % ── Bigram Card ──
+    yBigram = inY - gap - cardH;
     pnlBigram = uipanel(fig, ...
-        'Position', [LEFT_X 375 COL_W 125], ...
-        'BackgroundColor', PANEL, ...
+        'Position', [16 yBigram cardW cardH], ...
+        'BackgroundColor', CARD, ...
         'BorderType', 'line', 'HighlightColor', BORDER);
     uilabel(pnlBigram, ...
-        'Position', [8 100 378 20], ...
-        'Text', 'Bigram Prediction', ...
-        'FontColor', GRN, 'FontWeight', 'bold', 'FontSize', 11);
+        'Position', [16 120 cardW-32 24], ...
+        'Text', 'Bigram Model', ...
+        'FontSize', 13, 'FontWeight', 'bold', ...
+        'FontColor', GREEN);
     lblBigram = uilabel(pnlBigram, ...
-        'Position', [8 5 378 95], ...
-        'Text', '  —', ...
-        'FontColor', TXT, 'FontSize', 11, ...
+        'Position', [16 8 cardW-32 108], ...
+        'Text', '  Enter a word and click Predict', ...
+        'FontSize', 12, 'FontColor', SUBTXT, ...
         'VerticalAlignment', 'top', 'WordWrap', 'on');
 
-    % ── Vector results ──
+    % ── Vector Card ──
+    yVector = yBigram - gap - cardH;
     pnlVector = uipanel(fig, ...
-        'Position', [LEFT_X 248 COL_W 122], ...
-        'BackgroundColor', PANEL, ...
+        'Position', [16 yVector cardW cardH], ...
+        'BackgroundColor', CARD, ...
         'BorderType', 'line', 'HighlightColor', BORDER);
     uilabel(pnlVector, ...
-        'Position', [8 96 378 20], ...
-        'Text', 'Vector Prediction', ...
-        'FontColor', PUR, 'FontWeight', 'bold', 'FontSize', 11);
+        'Position', [16 120 cardW-32 24], ...
+        'Text', 'Vector Similarity', ...
+        'FontSize', 13, 'FontWeight', 'bold', ...
+        'FontColor', PURPLE);
     lblVector = uilabel(pnlVector, ...
-        'Position', [8 5 378 90], ...
-        'Text', '  —', ...
-        'FontColor', TXT, 'FontSize', 11, ...
+        'Position', [16 8 cardW-32 108], ...
+        'Text', '  Enter a word and click Predict', ...
+        'FontSize', 12, 'FontColor', SUBTXT, ...
         'VerticalAlignment', 'top', 'WordWrap', 'on');
 
-    % ── Letter match ──
+    % ── Letter Match Card ──
+    yLetter = yVector - gap - cardH;
     pnlLetter = uipanel(fig, ...
-        'Position', [LEFT_X 130 COL_W 113], ...
-        'BackgroundColor', PANEL, ...
+        'Position', [16 yLetter cardW cardH], ...
+        'BackgroundColor', CARD, ...
         'BorderType', 'line', 'HighlightColor', BORDER);
     uilabel(pnlLetter, ...
-        'Position', [8 88 378 20], ...
+        'Position', [16 120 cardW-32 24], ...
         'Text', 'Letter Match', ...
-        'FontColor', [0.80 0.55 0.10], 'FontWeight', 'bold', 'FontSize', 11);
+        'FontSize', 13, 'FontWeight', 'bold', ...
+        'FontColor', ORANGE);
     lblLetter = uilabel(pnlLetter, ...
-        'Position', [8 5 378 82], ...
-        'Text', '  —', ...
-        'FontColor', TXT, 'FontSize', 11, ...
+        'Position', [16 8 cardW-32 108], ...
+        'Text', '  Enter a letter (a-z) and click Letter', ...
+        'FontSize', 12, 'FontColor', SUBTXT, ...
         'VerticalAlignment', 'top', 'WordWrap', 'on');
 
-    % ════════════════════════════════════════
-    %  RIGHT COLUMN  —  Probability bars
-    % ════════════════════════════════════════
-    pnlProb = uipanel(fig, ...
-        'Position', [415 130 395 370], ...
-        'BackgroundColor', PANEL, ...
-        'BorderType', 'line', 'HighlightColor', BORDER);
-    uilabel(pnlProb, ...
-        'Position', [8 342 378 20], ...
-        'Text', 'Probability Preview', ...
-        'FontColor', ACC, 'FontWeight', 'bold', 'FontSize', 11);
-    lblProb = uilabel(pnlProb, ...
-        'Position', [8 5 378 335], ...
-        'Text', ' Enter a word and click  PREDICT  to see results.', ...
-        'FontColor', MUTED, 'FontSize', 11, 'FontName', 'Consolas', ...
-        'VerticalAlignment', 'top', 'WordWrap', 'on');
-
-    % ── Chart axes (hidden until needed) ──
-    axChart = uiaxes(fig, ...
-        'Position', [425 140 375 355], ...
-        'Visible', 'off', ...
-        'Color', PANEL, ...
-        'XColor', MUTED, 'YColor', MUTED, ...
-        'GridColor', BORDER, 'GridAlpha', 0.5, ...
-        'Box', 'on');
-    axChart.XLabel.String = 'Word';
-    axChart.YLabel.String = 'Probability';
-    grid(axChart, 'on');
-
-    % ════════════════════════════════════════
-    %  CALLBACKS
-    % ════════════════════════════════════════
     chartFig = [];
+
+    % ══════════════════════════════════════
+    %  CALLBACKS
+    % ══════════════════════════════════════
 
     function onPredict()
         raw = editWord.Value;
@@ -202,54 +191,39 @@ function ui_demo()
             return;
         end
 
-        % Predict bigram
         bigramPreds = prediction_words_bigram(word, bigramModel, 5);
         if isKey(vocabLookup, word)
-            idx = vocabLookup(word);
-            bigramProbs = bigramModel.probs(idx, :);
             inVocab = true;
         else
-            bigramProbs = [];
             inVocab = false;
         end
 
-        % Predict vector
         vecPreds = predict_vector_similar(word, embeddings, 5);
 
-        % Update bigram label
         if inVocab
-            lblBigram.Text = ['  ' strjoin(bigramPreds, '  ›  ')];
+            lblBigram.Text = sprintf('  "%s"  -->  %s', word, strjoin(bigramPreds, '  |  '));
+            lblBigram.FontColor = TXT;
         else
-            lblBigram.Text = ['  [not in vocab]  ' strjoin(bigramPreds, '  ›  ')];
+            lblBigram.Text = sprintf('  "%s"  (unknown)  -->  %s', word, strjoin(bigramPreds, '  |  '));
+            lblBigram.FontColor = SUBTXT;
         end
 
-        % Update vector label
         if isempty(vecPreds)
-            lblVector.Text = '  —';
+            lblVector.Text = sprintf('  No similar words found for "%s"', word);
+            lblVector.FontColor = SUBTXT;
         elseif inVocab
-            lblVector.Text = ['  ' strjoin(vecPreds, '  ›  ')];
+            lblVector.Text = sprintf('  "%s"  -->  %s', word, strjoin(vecPreds, '  |  '));
+            lblVector.FontColor = TXT;
         else
-            lblVector.Text = ['  [not in vocab]  ' strjoin(vecPreds, '  ›  ')];
+            lblVector.Text = sprintf('  "%s"  (unknown)  -->  %s', word, strjoin(vecPreds, '  |  '));
+            lblVector.FontColor = SUBTXT;
         end
 
-        % Update probability text
-        updateProbDisplay(bigramPreds, bigramProbs);
-
-        % Update chart axes
-        plotBarChart(bigramPreds, bigramProbs);
-
-        % Status
-        if inVocab
-            lblStatus.Text = sprintf(' Predicted for "%s"  ·  Bigram: %s  |  Vector: %s', ...
-                word, strjoin(bigramPreds, ', '), strjoin(vecPreds, ', '));
-            lblStatus.FontColor = GRN;
-        else
-            lblStatus.Text = sprintf(' "%s" not in vocabulary — using backoff predictions', word);
-            lblStatus.FontColor = [0.80 0.55 0.10];
-        end
-        pause(0.3);
-        lblStatus.FontColor = MUTED;
-        lblStatus.Text = sprintf(' Ready  ·  Vocabulary: %d words', nVocab);
+        lblStatus.Text = sprintf('  Predicted for "%s"', word);
+        lblStatus.FontColor = GREEN;
+        pause(0.4);
+        lblStatus.FontColor = SUBTXT;
+        lblStatus.Text = sprintf('  Vocabulary: %d words  |  Ready', nVocab);
     end
 
     function onLetterMatch()
@@ -271,32 +245,39 @@ function ui_demo()
         end
         mask = cellfun(@(w) ~isempty(w) && w(1) == ch, vocab);
         matches = vocab(mask);
+        total = sum(mask);
         if numel(matches) > 30
             matches = matches(1:30);
         end
         if isempty(matches)
             lblLetter.Text = sprintf('  No words start with "%s"', ch);
+            lblLetter.FontColor = SUBTXT;
         else
-            lblLetter.Text = ['  "' upper(ch) '":  ' strjoin(matches, '  ·  ')];
+            lblLetter.Text = sprintf('  "%s" -- %d matches\n  %s', ...
+                upper(ch), total, strjoin(matches, '  |  '));
+            lblLetter.FontColor = TXT;
         end
-        lblStatus.Text = sprintf(' Letter "%s" — %d matches found', ch, sum(mask));
+        lblStatus.Text = sprintf('  Letter "%s" -- %d matches found', ch, total);
+        lblStatus.FontColor = ORANGE;
+        pause(0.4);
+        lblStatus.FontColor = SUBTXT;
+        lblStatus.Text = sprintf('  Vocabulary: %d words  |  Ready', nVocab);
     end
 
     function onClear()
         editWord.Value = '';
-        lblBigram.Text  = '  —';
-        lblVector.Text  = '  —';
-        lblLetter.Text  = '  —';
-        lblProb.Text    = ' Enter a word and click  PREDICT  to see results.';
-        cla(axChart);
-        axChart.Visible = 'off';
-        lblProb.Visible = 'on';
+        lblBigram.Text  = '  Enter a word and click Predict';
+        lblBigram.FontColor = SUBTXT;
+        lblVector.Text  = '  Enter a word and click Predict';
+        lblVector.FontColor = SUBTXT;
+        lblLetter.Text  = '  Enter a letter (a-z) and click Letter';
+        lblLetter.FontColor = SUBTXT;
         if ~isempty(chartFig) && isvalid(chartFig)
             delete(chartFig);
             chartFig = [];
         end
-        lblStatus.Text = sprintf(' Cleared  ·  Vocabulary: %d words', nVocab);
-        lblStatus.FontColor = MUTED;
+        lblStatus.Text = sprintf('  Vocabulary: %d words  |  Ready', nVocab);
+        lblStatus.FontColor = SUBTXT;
     end
 
     function onChart()
@@ -308,7 +289,7 @@ function ui_demo()
         if iscell(raw), raw = raw{1}; end
         word = lower(strtrim(raw));
         if ~isKey(vocabLookup, word)
-            uialert(fig, sprintf('"%s" not in vocabulary.', word), 'Unknown Word');
+            uialert(fig, sprintf('"%s" is not in the vocabulary.', word), 'Unknown Word');
             return;
         end
         idx = vocabLookup(word);
@@ -317,63 +298,14 @@ function ui_demo()
         showChartFigure(word, preds, probs);
     end
 
-    function updateProbDisplay(preds, probs)
-        if isempty(preds)
-            lblProb.Text = ' No predictions available.';
-            return;
-        end
-        lines = {};
-        lines{end+1} = sprintf('  %-14s %6s  %s', 'Word', 'Prob', 'Bar');
-        lines{end+1} = repmat('─', 1, 50);
-        for i = 1:numel(preds)
-            if ~isempty(probs) && isKey(vocabLookup, preds{i})
-                wi = vocabLookup(preds{i});
-                p  = full(probs(wi));
-            else
-                p = 0;
-            end
-            n   = min(max(round(p * 100), 0), 25);
-            bar = [repmat('█', 1, n) repmat('░', 1, 25-n)];
-            lines{end+1} = sprintf('  %-14s %5.1f%%  %s', preds{i}, p*100, bar);
-        end
-        lblProb.Text = strjoin(lines, newline);
-    end
-
-    function plotBarChart(preds, probs)
-        if isempty(preds)
-            cla(axChart); axChart.Visible = 'off'; lblProb.Visible = 'on';
-            return;
-        end
-        vals = zeros(1, numel(preds));
-        for i = 1:numel(preds)
-            if ~isempty(probs) && isKey(vocabLookup, preds{i})
-                wi = vocabLookup(preds{i});
-                vals(i) = full(probs(wi));
-            else
-                vals(i) = 1 / max(numel(preds), 1);
-            end
-        end
-        cla(axChart);
-        b = bar(axChart, 1:numel(preds), vals, ...
-            'FaceColor', ACC, 'EdgeColor', 'none', 'BarWidth', 0.6);
-        axChart.XTick = 1:numel(preds);
-        axChart.XTickLabel = preds;
-        axChart.XTickLabelRotation = 30;
-        ylabel(axChart, 'Probability');
-        grid(axChart, 'on');
-        axChart.GridAlpha = 0.3;
-        axChart.Visible = 'on';
-        lblProb.Visible = 'off';
-    end
-
     function showChartFigure(word, preds, probs)
         if ~isempty(chartFig) && isvalid(chartFig)
             delete(chartFig);
         end
         chartFig = figure( ...
-            'Name',       sprintf('Probability Chart — "%s"', word), ...
-            'Position',   [200 150 620 400], ...
-            'Color',      [1 1 1], ...
+            'Name',       sprintf('Predictions for "%s"', word), ...
+            'Position',   [200 120 640 420], ...
+            'Color',      [0.98 0.985 0.99], ...
             'NumberTitle','off', 'MenuBar', 'none', 'ToolBar', 'none');
 
         vals = zeros(1, numel(preds));
@@ -384,17 +316,22 @@ function ui_demo()
             end
         end
 
-        ax = axes(chartFig, 'Position', [0.13 0.18 0.80 0.70]);
-        b = bar(ax, 1:numel(preds), vals, ...
-            'FaceColor', ACC, 'EdgeColor', 'none', 'BarWidth', 0.6);
+        ax = axes(chartFig, 'Position', [0.10 0.15 0.85 0.72]);
+        bar(ax, 1:numel(preds), vals, ...
+            'FaceColor', ACCENT, 'EdgeColor', 'none', 'BarWidth', 0.55);
         ax.XTick = 1:numel(preds);
         ax.XTickLabel = preds;
-        ax.XTickLabelRotation = 30;
-        ylabel(ax, 'Probability');
-        title(ax, sprintf('Top predictions for "%s"', word), 'FontSize', 13);
+        ax.XTickLabelRotation = 20;
+        ax.FontSize = 12;
+        ax.Color = [0.98 0.985 0.99];
+        ax.XColor = [0.5 0.5 0.55];
+        ax.YColor = [0.5 0.5 0.55];
+        ylabel(ax, 'Probability', 'FontSize', 11);
+        title(ax, sprintf('Top predictions for "%s"', word), ...
+            'FontSize', 14, 'FontWeight', 'bold');
         grid(ax, 'on');
-        ax.GridAlpha = 0.3;
-        ax.Color = [1 1 1];
+        ax.GridAlpha = 0.15;
+        ax.GridColor = [0.8 0.8 0.85];
     end
 
     function cleanup()
